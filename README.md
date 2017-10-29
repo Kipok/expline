@@ -28,7 +28,7 @@ combine_results.py exps
 cat exps.csv
 ```
 
-Note that after you install the package `combine_results` script is available in any directory. 
+Note that ones you install the package, `combine_results` script is available in any directory. 
 Alternatively, you can call combine_results function from python
 ```python
 from expline.utils import combine_results
