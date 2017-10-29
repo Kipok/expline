@@ -3,7 +3,7 @@
 
 ## Installation
 
-Clone the respository and from the base direcroty run 
+Clone the respository and from the base directory run 
 
     $ pip install .
 
