@@ -1,12 +1,13 @@
-A simple pipeline to run machine learning experiments.
+# expline
+### A simple pipeline to run machine learning experiments
 
-# Installation
+## Installation
 
 Clone the respository and from the base direcroty run 
 
     $ pip install .
 
-# Usage
+## Usage
 
 Look at the docs in the files. To do a test run, execute:
 
@@ -18,7 +19,7 @@ To combine the results of different experiments you can run
 
     $ combine_results <dir_name>
 
-## Example:
+### Example:
 
     $ python example.py -lr=0.1 --epochs=100
     $ python example.py -lr=0.5 --epochs=100
@@ -32,4 +33,3 @@ Alternatively, you can call combine_results function from python
     from expline.utils import combine_results
     results_csv = combine_results(data_dir)
 ```
-
