@@ -4,7 +4,7 @@ from six.moves import range
 import numpy as np
 import argparse
 
-from expline.base_experiment import BaseExperiment
+from expline.base import BaseExperiment
 
 
 class ExampleExperiment(BaseExperiment):
@@ -33,9 +33,6 @@ class ExampleExperiment(BaseExperiment):
     self.T = args.epochs
 
   def get_params(self):
-    # TODO(@igor): for now, this function can only return simple 
-    # dict instead of config object used by Ezra. I'll make it 
-    # possible to return both config or dict later
     return {'lr': self.lr, 'num_epochs': self.T}
 
   def obj(self, w):

@@ -4,8 +4,6 @@ from utils import get_output_folder, get_git_hash, \
                   get_git_diff, logging_mode
 
 # TODO(@igor): maybe add some load_model helper functionality?
-# TODO(@igor): add script to parse experiments folder and 
-#              return a convenient csv table
 
 class BaseExperiment(object):
   """Base experiment class for the unified experiments pipeline.
@@ -147,7 +145,7 @@ class BaseExperiment(object):
     params = self.get_params()
     # TODO: make it work with Config?
     with open('params.log', 'w') as fout:
-      fout.write("commit hash: {}".format(git_hash))
+      fout.write("commit_hash: {}".format(git_hash))
       fout.write(self._dict_to_string(params))
     with open('git_diff.log', 'w') as fout:
       fout.write(git_diff)
