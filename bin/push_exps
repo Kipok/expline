@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+import datetime
+import os
+import six
+import sys
+import time
+import unicodedata
+
+import dropbox
+from expline.dropbox_utils import download, upload, list_folder
+from expline.utils import read_dict
+
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser(description='Push experiments to Dropbox')
+  parser.add_argument('dir_name', help='Experiments directory')
+  parser.add_argument('--machine_id', required=True,
+                      help='Computer id to append before folder names')
+  parser.add_argument('--ignore', nargs='+', default=[],
+                      help='List folders that need not be synced')
+  args = parser.parse_args()
+
+  db_folder = args.dir_name
+  local_folder = args.dir_name
+  machine_id = args.machine_id
+  if not os.path.exists(local_folder):
+    print(local_folder, 'does not exist on your filesystem')
+    sys.exit(1)
+  elif not os.path.isdir(local_folder):
+    print(local_folder, 'is not a folder on your filesystem')
+    sys.exit(1)
+  print('Uploading directory:', local_folder)
+
+  # TODO: catch exceptions
+  # TODO: make configure script to create explinerc?
+  config = read_dict(os.path.expanduser('~/.explinerc'))
+  dbx = dropbox.Dropbox(config['db_token'])
+
+  for dn, dirs, files in os.walk(local_folder):
+    subfolder = dn[len(local_folder):].strip(os.path.sep)
+    print('Descending into', subfolder, '...')
+    if subfolder != "":
+      subfolder = machine_id + '-' + subfolder
+    db_listing = list_folder(dbx, db_folder, subfolder)
+
+    # First do all the files.
+    # TODO: hierarchical indent
+    for name in files:
+      fullname = os.path.join(dn, name)
+      if not isinstance(name, six.text_type):
+        name = name.decode('utf-8')
+      nname = unicodedata.normalize('NFC', name)
+      if name.startswith('.'):
+        print('  Skipping dot file:', name)
+      elif name.startswith('@') or name.endswith('~'):
+        print('  Skipping temporary file:', name)
+      elif name.endswith('.pyc') or name.endswith('.pyo'):
+        print('  Skipping generated file:', name)
+      elif nname in db_listing:
+        md = db_listing[nname]
+        mtime = os.path.getmtime(fullname)
+        mtime_dt = datetime.datetime(*time.gmtime(mtime)[:6])
+        size = os.path.getsize(fullname)
+        if (isinstance(md, dropbox.files.FileMetadata) and
+            mtime_dt == md.client_modified and size == md.size):
+          print('  {} is already synced [stats match]'.format(name))
+        else:
+          print('  {} exists with different stats, overwriting'.format(name))
+          upload(dbx, fullname, db_folder, subfolder, name, overwrite=True)
+      else:
+        print('  uploading {}'.format(name))
+        upload(dbx, fullname, db_folder, subfolder, name)
+
+    # Then choose which subdirectories to traverse.
+    keep = []
+    for name in dirs:
+      if name.startswith('.'):
+        print('Skipping dot directory:', name)
+      elif name.startswith('@') or name.endswith('~'):
+        print('Skipping temporary directory:', name)
+      elif name == '__pycache__':
+        print('Skipping generated directory:', name)
+      elif name in args.ignore:
+        print('Ignoring directory:', name)
+      else:
+        keep.append(name)
+    dirs[:] = keep
+

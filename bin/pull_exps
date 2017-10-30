@@ -1,0 +1,44 @@
+#!/usr/bin/env python
+
+from __future__ import print_function
+
+import argparse
+import sys, requests, os
+from zipfile import ZipFile
+from expline.utils import read_dict
+
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser(description='Pull experiments from Dropbox')
+  parser.add_argument('dir_name', help='Experiments directory')
+  parser.add_argument('--overwrite', action='store_true', default=False,
+                      help='Overwrite directory if exists?')
+  args = parser.parse_args()
+
+  exp_folder = args.dir_name
+  if os.path.exists(exp_folder):
+    if args.overwrite:
+      print('Folder {} already exists, overwriting..'.format(exp_folder))
+    else:
+      print('Folder {} already exists, '.format(exp_folder) +\
+            'if you want to overwrite it, specify --overwrite flag')
+      sys.exit(1)
+  else:
+    print('Writing to:', exp_folder)
+    os.makedirs(exp_folder)
+
+  # TODO: instead of downloading zip should be incremental download
+  config = read_dict(os.path.expanduser('~/.explinerc'))
+  zip_url = config['db_link']
+
+  if sys.version.startswith('2'):
+    import StringIO
+    req = requests.get(zip_url, stream=True)
+    zip_file = ZipFile(StringIO.StringIO(req.content))
+    zip_file.extractall(exp_folder)
+  else:
+    import io
+    req = requests.get(zip_url)
+    zip_file = ZipFile(io.BytesIO(req.content))
+    zip_file.extractall(exp_folder)
+

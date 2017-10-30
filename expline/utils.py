@@ -14,7 +14,7 @@ def read_dict(file_name, prefix=""):
     for raw_elem in fin.readlines():
       if raw_elem == "":
         continue
-      name, val = raw_elem.rsplit(':', 1)
+      name, val = raw_elem.split(':', 1)
       val = val.strip()
       out_dict[prefix + name] = val
   return out_dict
