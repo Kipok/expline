@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 import argparse
-import sys, requests, os
+import sys, requests, os, shutil
 from zipfile import ZipFile
 from expline.utils import read_dict
 
@@ -19,6 +19,7 @@ if __name__ == '__main__':
   if os.path.exists(exp_folder):
     if args.overwrite:
       print('Folder {} already exists, overwriting..'.format(exp_folder))
+      shutil.rmtree(exp_folder)
     else:
       print('Folder {} already exists, '.format(exp_folder) +\
             'if you want to overwrite it, specify --overwrite flag')
