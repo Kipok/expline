@@ -42,7 +42,8 @@ class Logger(object):
   """From stack overflow"""
   def __init__(self):
     self.terminal = sys.stdout
-    self.log = open("stdout.log", "a")
+    bufsize = 0
+    self.log = open("stdout.log", "a", bufsize)
 
   def write(self, message):
     self.terminal.write(message)
@@ -52,7 +53,8 @@ class Logger(object):
     #this flush method is needed for python 3 compatibility.
     #this handles the flush command by doing nothing.
     #you might want to specify some extra behavior here.
-    pass
+    self.terminal.flush()
+    self.log.flush()
 
 
 @contextmanager
