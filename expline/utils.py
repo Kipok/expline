@@ -40,10 +40,16 @@ def combine_results(dir_name):
 
 class Logger(object):
   """From stack overflow"""
-  def __init__(self):
-    self.terminal = sys.stdout
+  def __init__(self, stream_name):
+    if stream_name == 'stdout':
+      stream = sys.stdout
+    elif stream_name == 'stderr':
+      stream = sys.stderr
+    else:
+      raise ValueError("Unknown stream")
+    self.terminal = stream
     bufsize = 0
-    self.log = open("stdout.log", "a", bufsize)
+    self.log = open("{}.log".format(stream_name), "a", bufsize)
 
   def write(self, message):
     self.terminal.write(message)
@@ -59,16 +65,19 @@ class Logger(object):
 
 @contextmanager
 def logging_mode(working_dir):
-    """redirects stdout + changes the working dir"""
-    old_dir = os.getcwd()
-    os.chdir(working_dir)
-    old_stdout = sys.stdout
-    sys.stdout = Logger()
-    try:
-        yield
-    finally:
-        sys.stdout = old_stdout
-        os.chdir(old_dir)
+  """redirects stdout + changes the working dir"""
+  old_dir = os.getcwd()
+  os.chdir(working_dir)
+  old_stdout = sys.stdout
+  old_stderr = sys.stderr
+  sys.stdout = Logger('stdout')
+  sys.stderr = Logger('stderr')
+  try:
+    yield
+  finally:
+    sys.stdout = old_stdout
+    sys.stderr = old_stderr
+    os.chdir(old_dir)
 
 
 def get_git_hash():
@@ -76,7 +85,6 @@ def get_git_hash():
     # debatable if this is a good behaviour to suppress all output
     # since it will be difficult to find an error when git exists
     # but exception is still raised somehow
-    FNULL = open(os.devnull, 'w')
     return subprocess.check_output(['git', 'rev-parse', 'HEAD'],
                                    stderr=subprocess.STDOUT).decode()
   except:
@@ -88,7 +96,6 @@ def get_git_diff():
     # debatable if this is a good behaviour to suppress all output
     # since it will be difficult to find an error when git exists
     # but exception is still raised somehow
-    FNULL = open(os.devnull, 'w')
     return subprocess.check_output(['git', 'diff'],
                                    stderr=subprocess.STDOUT).decode()
   except:
