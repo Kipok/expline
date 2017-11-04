@@ -72,11 +72,27 @@ def logging_mode(working_dir):
 
 
 def get_git_hash():
-  return subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode()
+  try:
+    # debatable if this is a good behaviour to suppress all output
+    # since it will be difficult to find an error when git exists
+    # but exception is still raised somehow
+    FNULL = open(os.devnull, 'w')
+    return subprocess.check_output(['git', 'rev-parse', 'HEAD'],
+                                   stderr=subprocess.STDOUT).decode()
+  except:
+    return "no git available\n"
 
 
 def get_git_diff():
-  return subprocess.check_output(['git', 'diff']).decode()
+  try:
+    # debatable if this is a good behaviour to suppress all output
+    # since it will be difficult to find an error when git exists
+    # but exception is still raised somehow
+    FNULL = open(os.devnull, 'w')
+    return subprocess.check_output(['git', 'diff'],
+                                   stderr=subprocess.STDOUT).decode()
+  except:
+    return "no git available\n"
 
 
 def get_output_folder(exp_name, parent_dir='exps', create_new=True):
