@@ -44,6 +44,10 @@ Now expline supports synchronization with dropbox. To begin using it you'll need
     db_token: <db_token>
     db_link: <db_link>
 
+You will also need to install dropbox package by executing:
+
+    pip install dropbox
+
 TODO: add explanation to these parameters and how to setup them
 
 Now you can push your experiments folder to central Dropbox server (it's convenient when there are multiple people making experiments at the same time or when you're running experiments on different machines). To do that, execute the following command:
