@@ -31,8 +31,14 @@ def combine_results(dir_name):
   for exp_name in dirs:
     params = {'dir_name': dir_name, 'exp_name': exp_name}
     file_name = os.path.join(dir_name, exp_name, 'params.log')
+    if not os.path.isfile(file_name):
+      print("Ignoring {} since there is no params.log".format(exp_name))
+      continue
     params.update(read_dict(file_name))
     file_name = os.path.join(dir_name, exp_name, 'results.log')
+    if not os.path.isfile(file_name):
+      print("Ignoring {} since there is no results.log".format(exp_name))
+      continue
     params.update(read_dict(file_name))
     res_df = res_df.append(params, ignore_index=True)
   return res_df
